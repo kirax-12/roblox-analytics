@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remike Analytics — Dashboard Game Roblox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1526;
+    --panel:#16203A;
+    --panel-2:#1B2745;
+    --border:#263354;
+    --border-soft:#1E2A47;
+    --text:#E8EEF9;
+    --muted:#8FA1C2;
+    --blue:#7AB8FF;
+    --green:#4ADE80;
+    --yellow:#FFD23F;
+    --pink:#FF90E8;
+    --red:#FF7A7A;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'Space Mono',monospace}
+  .app{display:flex;min-height:100vh}
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    width:232px;flex-shrink:0;
+    background:#0B1120;
+    border-right:1px solid var(--border-soft);
+    padding:22px 16px;
+    display:flex;flex-direction:column;gap:6px;
+    position:sticky;top:0;height:100vh;
+  }
+  .logo{display:flex;align-items:center;gap:11px;padding:4px 8px 20px}
+  .logo-mark{
+    width:38px;height:38px;border-radius:10px;flex-shrink:0;
+    background:linear-gradient(135deg,var(--blue),var(--pink));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Grotesk';font-weight:700;font-size:19px;color:#0B1120;
+  }
+  .logo-name{font-weight:700;font-size:17px;line-height:1.1}
+  .logo-sub{font-family:'Space Mono';font-size:10.5px;color:var(--muted);letter-spacing:.4px}
+  .nav-label{font-family:'Space Mono';font-size:10.5px;letter-spacing:1.6px;color:var(--muted);padding:8px 10px 6px}
+  .nav-btn{
+    display:flex;align-items:center;gap:11px;width:100%;
+    background:transparent;border:1px solid transparent;color:var(--muted);
+    font-family:'Space Grotesk';font-size:14.5px;font-weight:500;
+    padding:11px 12px;border-radius:10px;cursor:pointer;text-align:left;
+    transition:background .15s,color .15s,border-color .15s;
+  }
+  .nav-btn .dot{width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.55;flex-shrink:0}
+  .nav-btn:hover{background:var(--panel);color:var(--text)}
+  .nav-btn.active{background:var(--panel-2);border-color:var(--border);color:var(--text)}
+  .nav-btn.active .dot{opacity:1;color:var(--blue)}
+  .sidebar-foot{margin-top:auto;padding:12px 10px 2px;border-top:1px solid var(--border-soft);
+    font-family:'Space Mono';font-size:11px;color:var(--muted);line-height:1.6}
+  .sidebar-foot b{color:var(--green);font-weight:700}
+
+  /* ---------- MAIN ---------- */
+  main{flex:1;min-width:0;padding:26px 30px 18px;display:flex;flex-direction:column}
+  .topbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;margin-bottom:22px}
+  .topbar h1{font-size:26px;font-weight:700;letter-spacing:-.3px}
+  .topbar .sub{color:var(--muted);font-size:13.5px;margin-top:3px}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  select{
+    background:var(--panel);color:var(--text);border:1px solid var(--border);
+    font-family:'Space Grotesk';font-size:14px;font-weight:500;
+    padding:10px 12px;border-radius:10px;cursor:pointer;outline:none;max-width:230px;
+  }
+  select:focus{border-color:var(--blue)}
+  .range-group{display:flex;background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .range-btn{
+    background:transparent;border:none;color:var(--muted);cursor:pointer;
+    font-family:'Space Mono';font-size:13px;padding:10px 15px;
+    transition:background .15s,color .15s;
+  }
+  .range-btn + .range-btn{border-left:1px solid var(--border-soft)}
+  .range-btn:hover{color:var(--text)}
+  .range-btn.active{background:var(--blue);color:#0B1120;font-weight:700}
+
+  .view{display:flex;flex-direction:column;gap:18px}
+  .hidden{display:none !important}
+
+  /* ---------- STAT CARDS ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .stat-card{
+    background:var(--panel);border:1px solid var(--border-soft);border-radius:14px;
+    padding:18px 20px;position:relative;overflow:hidden;
+  }
+  .stat-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ac,var(--blue))}
+  .stat-label{font-family:'Space Mono';font-size:11px;letter-spacing:1.4px;color:var(--muted);text-transform:uppercase}
+  .stat-value{font-family:'Space Mono';font-size:29px;font-weight:700;margin-top:7px;line-height:1}
+  .stat-delta{font-size:12.5px;margin-top:8px;color:var(--muted)}
+  .stat-delta .up{color:var(--green);font-weight:600}
+  .stat-delta .down{color:var(--red);font-weight:600}
+
+  /* ---------- PANELS / CHARTS ---------- */
+  .panel{background:var(--panel);border:1px solid var(--border-soft);border-radius:14px;padding:20px 22px}
+  .panel-head{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+  .panel-title{font-size:16.5px;font-weight:600}
+  .panel-note{font-family:'Space Mono';font-size:11.5px;color:var(--muted)}
+  .chart-wrap{position:relative;width:100%}
+  .chart-wrap.tall{height:330px}
+  .chart-wrap.mid{height:280px}
+  canvas.chart{width:100%;height:100%;display:block}
+  .tooltip{
+    position:absolute;pointer-events:none;opacity:0;transition:opacity .12s;
+    background:#0B1120;border:1px solid var(--border);border-radius:9px;
+    padding:8px 11px;font-family:'Space Mono';font-size:12px;line-height:1.55;
+    color:var(--text);white-space:nowrap;z-index:5;box-shadow:0 8px 24px rgba(0,0,0,.45);
+  }
+  .tooltip .t-date{color:var(--muted);font-size:11px}
+  .tooltip .t-val{font-weight:700;font-size:13.5px}
+
+  /* ---------- TABLE ---------- */
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+  thead th{
+    font-family:'Space Mono';font-size:11px;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);
+  }
+  tbody td{padding:13px 12px;border-bottom:1px solid var(--border-soft);vertical-align:middle}
+  tbody tr{transition:background .12s}
+  tbody tr.clickable{cursor:pointer}
+  tbody tr.clickable:hover{background:var(--panel-2)}
+  tbody tr.selected{background:var(--panel-2)}
+  tbody tr.selected td:first-child{box-shadow:inset 3px 0 0 var(--blue)}
+  .game-cell{display:flex;align-items:center;gap:12px;font-weight:600}
+  .game-ava{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:14px;color:#0B1120}
+  .num{font-family:'Space Mono'}
+  .rating-pill{display:inline-block;padding:3px 10px;border-radius:999px;font-family:'Space Mono';font-size:12px;font-weight:700;
+    background:rgba(74,222,128,.13);color:var(--green);border:1px solid rgba(74,222,128,.35)}
+  .rating-pill.mid{background:rgba(255,210,63,.12);color:var(--yellow);border-color:rgba(255,210,63,.35)}
+  .ccu-live{display:inline-flex;align-items:center;gap:7px}
+  .ccu-live::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green);
+    box-shadow:0 0 0 0 rgba(74,222,128,.5);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(74,222,128,.45)}70%{box-shadow:0 0 0 7px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+
+  /* ---------- PENDAPATAN ---------- */
+  .rev-list{display:flex;flex-direction:column;gap:14px}
+  .rev-row{display:grid;grid-template-columns:190px 1fr 130px;gap:14px;align-items:center}
+  .rev-row .r-name{font-weight:600;font-size:14.5px}
+  .rev-row .r-val{font-family:'Space Mono';font-weight:700;text-align:right}
+  .bar-track{height:12px;background:#0B1120;border:1px solid var(--border-soft);border-radius:999px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:999px;transition:width .6s ease}
+
+  /* ---------- PEMAIN ---------- */
+  .ret-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .ret-card{background:var(--panel);border:1px solid var(--border-soft);border-radius:14px;padding:20px;text-align:left}
+  .ret-card .r-big{font-family:'Space Mono';font-size:34px;font-weight:700;margin:6px 0 4px}
+  .ret-bar{height:9px;background:#0B1120;border:1px solid var(--border-soft);border-radius:999px;overflow:hidden;margin-top:12px}
+  .ret-fill{height:100%;border-radius:999px;transition:width .6s ease}
+  .ret-note{font-size:12.5px;color:var(--muted);line-height:1.5}
+
+  footer{margin-top:auto;padding-top:22px;text-align:center;
+    font-family:'Space Mono';font-size:11.5px;color:var(--muted)}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:1020px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .ret-grid{grid-template-columns:1fr}
+    .rev-row{grid-template-columns:130px 1fr 105px}
+  }
+  @media (max-width:760px){
+    .app{flex-direction:column}
+    .sidebar{width:100%;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center;padding:14px 16px}
+    .logo{padding:0 8px 0 0}
+    .logo-sub{display:none}
+    .nav-label{display:none}
+    .nav-btn{width:auto;padding:9px 13px;font-size:13.5px}
+    .sidebar-foot{display:none}
+    main{padding:20px 16px 14px}
+    .stats{grid-template-columns:1fr 1fr}
+    .stat-value{font-size:23px}
+    .chart-wrap.tall{height:260px}
+    .chart-wrap.mid{height:230px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">R</div>
+      <div>
+        <div class="logo-name">Remike Analytics</div>
+        <div class="logo-sub">ROBLOX CREATOR DASHBOARD</div>
+      </div>
+    </div>
+    <div class="nav-label">MENU</div>
+    <button class="nav-btn active" data-view="ringkasan"><span class="dot"></span>Ringkasan</button>
+    <button class="nav-btn" data-view="game"><span class="dot"></span>Game Saya</button>
+    <button class="nav-btn" data-view="pendapatan"><span class="dot"></span>Pendapatan</button>
+    <button class="nav-btn" data-view="pemain"><span class="dot"></span>Pemain</button>
+    <div class="sidebar-foot">
+      Status server<br><b>● Semua sistem normal</b><br>
+      <span style="color:var(--muted)">Data diperbarui: baru saja</span>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main>
+    <div class="topbar">
+      <div>
+        <h1 id="pageTitle">Ringkasan</h1>
+        <div class="sub" id="pageSub">Performa semua game dalam rentang terpilih.</div>
+      </div>
+      <div class="controls">
+        <select id="gameSelect" aria-label="Pilih game"></select>
+        <div class="range-group" role="group" aria-label="Rentang hari">
+          <button class="range-btn" data-range="7">7 hari</button>
+          <button class="range-btn active" data-range="30">30 hari</button>
+          <button class="range-btn" data-range="90">90 hari</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== VIEW: RINGKASAN ======== -->
+    <section class="view" id="view-ringkasan">
+      <div class="stats">
+        <div class="stat-card" style="--ac:var(--blue)">
+          <div class="stat-label">Total Visits</div>
+          <div class="stat-value" id="statVisits">0</div>
+          <div class="stat-delta" id="deltaVisits"></div>
+        </div>
+        <div class="stat-card" style="--ac:var(--green)">
+          <div class="stat-label">Rata-rata CCU</div>
+          <div class="stat-value" id="statCcu">0</div>
+          <div class="stat-delta" id="deltaCcu"></div>
+        </div>
+        <div class="stat-card" style="--ac:var(--yellow)">
+          <div class="stat-label">Robux Earned</div>
+          <div class="stat-value" id="statRobux">0</div>
+          <div class="stat-delta" id="deltaRobux"></div>
+        </div>
+        <div class="stat-card" style="--ac:var(--pink)">
+          <div class="stat-label">Retention D1</div>
+          <div class="stat-value" id="statRetention">0%</div>
+          <div class="stat-delta" id="deltaRetention"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Visits per Hari</div>
+          <div class="panel-note" id="lineNote"></div>
+        </div>
+        <div class="chart-wrap tall">
+          <canvas class="chart" id="lineChart"></canvas>
+          <div class="tooltip" id="lineTooltip"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Ringkasan Game</div>
+          <div class="panel-note">Klik baris untuk memilih game</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Game</th><th>Visits (rentang)</th><th>Rating</th><th>CCU Sekarang</th><th>Robux</th>
+            </tr></thead>
+            <tbody id="summaryTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======== VIEW: GAME SAYA ======== -->
+    <section class="view hidden" id="view-game">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Semua Game Saya</div>
+          <div class="panel-note" id="gameTableNote"></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Game</th><th>Total Visits (semua waktu)</th><th>Visits (rentang)</th><th>Rating</th><th>CCU Sekarang</th><th>Robux (rentang)</th><th>Retention D1</th>
+            </tr></thead>
+            <tbody id="fullTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Catatan</div>
+        </div>
+        <p style="color:var(--muted);font-size:14px;line-height:1.65">
+          Klik salah satu baris game untuk menjadikannya fokus dashboard — semua kartu statistik,
+          chart, dan halaman Pendapatan/Pemain akan mengikuti game yang dipilih. Gunakan dropdown
+          di kanan atas untuk beralih kembali ke tampilan <b style="color:var(--text)">Semua Game</b>.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======== VIEW: PENDAPATAN ======== -->
+    <section class="view hidden" id="view-pendapatan">
+      <div class="stats" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card" style="--ac:var(--yellow)">
+          <div class="stat-label">Total Robux (rentang)</div>
+          <div class="stat-value" id="revTotal">0</div>
+          <div class="stat-delta">dari gamepass, dev product &amp; premium payouts</div>
+        </div>
+        <div class="stat-card" style="--ac:var(--green)">
+          <div class="stat-label">Rata-rata / Hari</div>
+          <div class="stat-value" id="revDaily">0</div>
+          <div class="stat-delta">selama rentang terpilih</div>
+        </div>
+        <div class="stat-card" style="--ac:var(--blue)">
+          <div class="stat-label">Estimasi DevEx</div>
+          <div class="stat-value" id="revDevex">US$0</div>
+          <div class="stat-delta">kurs contoh US$0,0038 / Robux</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Robux per Minggu</div>
+          <div class="panel-note" id="barNote"></div>
+        </div>
+        <div class="chart-wrap mid">
+          <canvas class="chart" id="barChart"></canvas>
+          <div class="tooltip" id="barTooltip"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Pendapatan per Game</div>
+          <div class="panel-note">diurutkan dari terbesar</div>
+        </div>
+        <div class="rev-list" id="revList"></div>
+      </div>
+    </section>
+
+    <!-- ======== VIEW: PEMAIN ======== -->
+    <section class="view hidden" id="view-pemain">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Pemain Bersamaan (CCU) per Jam — Hari Ini</div>
+          <div class="panel-note" id="ccuNote"></div>
+        </div>
+        <div class="chart-wrap mid">
+          <canvas class="chart" id="ccuChart"></canvas>
+          <div class="tooltip" id="ccuTooltip"></div>
+        </div>
+      </div>
+
+      <div class="ret-grid">
+        <div class="ret-card">
+          <div class="stat-label" style="color:var(--blue)">Retention D1</div>
+          <div class="r-big" id="retD1">0%</div>
+          <div class="ret-note">Pemain baru yang kembali bermain keesokan harinya.</div>
+          <div class="ret-bar"><div class="ret-fill" id="retD1Bar" style="background:var(--blue);width:0%"></div></div>
+        </div>
+        <div class="ret-card">
+          <div class="stat-label" style="color:var(--green)">Retention D7</div>
+          <div class="r-big" id="retD7">0%</div>
+          <div class="ret-note">Pemain baru yang masih aktif setelah satu minggu.</div>
+          <div class="ret-bar"><div class="ret-fill" id="retD7Bar" style="background:var(--green);width:0%"></div></div>
+        </div>
+        <div class="ret-card">
+          <div class="stat-label" style="color:var(--pink)">Retention D30</div>
+          <div class="r-big" id="retD30">0%</div>
+          <div class="ret-note">Pemain baru yang masih setia setelah satu bulan.</div>
+          <div class="ret-bar"><div class="ret-fill" id="retD30Bar" style="background:var(--pink);width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="stats" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card" style="--ac:var(--green)">
+          <div class="stat-label">CCU Puncak Hari Ini</div>
+          <div class="stat-value" id="ccuPeak">0</div>
+          <div class="stat-delta" id="ccuPeakTime"></div>
+        </div>
+        <div class="stat-card" style="--ac:var(--blue)">
+          <div class="stat-label">Rata-rata CCU Hari Ini</div>
+          <div class="stat-value" id="ccuAvgToday">0</div>
+          <div class="stat-delta">dari 24 jam terakhir</div>
+        </div>
+        <div class="stat-card" style="--ac:var(--yellow)">
+          <div class="stat-label">Durasi Sesi Rata-rata</div>
+          <div class="stat-value" id="sessionAvg">0 mnt</div>
+          <div class="stat-delta">per pemain per kunjungan</div>
+        </div>
+      </div>
+    </section>
+
+    <footer>Dashboard konsep oleh Remike Dev — data contoh</footer>
+  </main>
+</div>
+
+<script>
+'use strict';
+/* ================================================================
+   REMIKE ANALYTICS — data contoh deterministik (seeded per game)
+   ================================================================ */
+const GAMES = [
+  { name: 'Fishing Adventure', base: 155000, rating: 88 },
+  { name: 'Mount Nyong',       base: 156000, rating: 87 },
+  { name: 'Obby Tower Fun',    base: 48500,  rating: 91 },
+  { name: 'Tycoon Kota Mini',  base: 23700,  rating: 84 }
+];
+const AVA_COLORS = ['#7AB8FF', '#4ADE80', '#FFD23F', '#FF90E8'];
+const TOTAL_DAYS = 90;
+const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+/* --- seeded PRNG --- */
+function hashCode(str){
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++){
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+function mulberry32(seed){
+  let a = seed >>> 0;
+  return function(){
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* --- tanggal: TOTAL_DAYS hari terakhir, berakhir hari ini --- */
+function buildDates(){
+  const out = [];
+  const now = new Date(); now.setHours(0,0,0,0);
+  for (let i = TOTAL_DAYS - 1; i >= 0; i--){
+    const d = new Date(now); d.setDate(now.getDate() - i);
+    out.push(d);
+  }
+  return out;
+}
+const DATES = buildDates();
+function fmtDate(d){ return d.getDate() + ' ' + MONTHS[d.getMonth()]; }
+
+/* --- generator data per game (konsisten antar render) --- */
+function genGameData(game){
+  const rng = mulberry32(hashCode(game.name));
+  const dailyBase   = game.base / 115;                 // rata-rata visits/hari
+  const trend       = (rng() - 0.38) * 0.0035;         // tren ringan naik/turun per hari
+  const robuxRate   = 0.045 + rng() * 0.055;           // Robux per visit
+  const ccuFactor   = 0.045 + rng() * 0.03;            // proporsi CCU rata-rata
+  const days = [];
+  for (let i = 0; i < TOTAL_DAYS; i++){
+    const dow = DATES[i].getDay();
+    const weekend = (dow === 0 || dow === 6) ? 1.32 : 1.0;   // weekend lebih ramai
+    const noise = 0.78 + rng() * 0.46;
+    const visits = Math.max(12, Math.round(dailyBase * (1 + trend * i) * weekend * noise));
+    const robux  = Math.round(visits * robuxRate * (0.8 + rng() * 0.4));
+    days.push({ visits, robux });
+  }
+  const retention = {
+    d1:  Math.round((30 + rng() * 18) * 10) / 10,   // 30–48%
+    d7:  Math.round((13 + rng() * 11) * 10) / 10,   // 13–24%
+    d30: Math.round((5  + rng() * 7)  * 10) / 10    // 5–12%
+  };
+  const sessionMin = Math.round((9 + rng() * 9) * 10) / 10;  // 9–18 menit
+  const peakHour = 18 + Math.floor(rng() * 4);               // 18–21
+  return { game, days, retention, ccuFactor, sessionMin, peakHour };
+}
+const GAME_DATA = GAMES.map(genGameData);
+
+/* --- pola CCU per jam (24 titik) --- */
+function hourlyPattern(peakHour, rng){
+  const pts = [];
+  for (let h = 0; h < 24; h++){
+    const dayCurve = Math.exp(-Math.pow(h - peakHour, 2) / 18);        // puncak malam
+    const morning  = 0.35 * Math.exp(-Math.pow(h - 12, 2) / 30);       // ramai sedang siang
+    const base = 0.10 + dayCurve * 0.85 + morning;
+    pts.push(Math.max(0.04, base * (0.9 + rng() * 0.2)));
+  }
+  return pts;
+}
+
+/* ================================================================
+   STATE + AGREGASI
+   ================================================================ */
+const state = { view: 'ringkasan', game: 'all', range: 30 };
+
+function selectedData(){
+  if (state.game === 'all') return GAME_DATA;
+  return GAME_DATA.filter(d => d.game.name === state.game);
+}
+/* agregasi harian untuk pilihan saat ini, dipotong ke rentang */
+function rangeSeries(){
+  const sel = selectedData();
+  const n = state.range;
+  const labels = [], visits = [], robux = [];
+  for (let i = TOTAL_DAYS - n; i < TOTAL_DAYS; i++){
+    labels.push(fmtDate(DATES[i]));
+    let v = 0, r = 0;
+    sel.forEach(d => { v += d.days[i].visits; r += d.days[i].robux; });
+    visits.push(v); robux.push(r);
+  }
+  return { labels, visits, robux };
+}
+function prevRangeVisits(){
+  const sel = selectedData();
+  const n = state.range;
+  let v = 0;
+  for (let i = TOTAL_DAYS - n * 2; i < TOTAL_DAYS - n; i++){
+    if (i < 0) continue;
+    sel.forEach(d => { v += d.days[i].visits; });
+  }
+  return v;
+}
+function avgCcuFor(dataArr, dayIdx){
+  let total = 0;
+  dataArr.forEach(d => { total += d.days[dayIdx].visits * d.ccuFactor; });
+  return total;
+}
+function currentCcu(dataArr){
+  // CCU "sekarang": dari hari terakhir, dibobot jam saat ini
+  const last = TOTAL_DAYS - 1;
+  const hour = new Date().getHours();
+  let total = 0;
+  dataArr.forEach(d => {
+    const rng = mulberry32(hashCode(d.game.name) + 777);
+    const pat = hourlyPattern(d.peakHour, rng);
+    total += d.days[last].visits * d.ccuFactor * (0.55 + pat[hour] * 1.5);
+  });
+  return Math.round(total);
+}
+function weightedRetention(key){
+  const sel = selectedData();
+  let num = 0, den = 0;
+  sel.forEach(d => { num += d.retention[key] * d.game.base; den += d.game.base; });
+  return Math.round((num / den) * 10) / 10;
+}
+
+/* ================================================================
+   FORMAT + COUNT-UP
+   ================================================================ */
+function fmtNum(n){ return Math.round(n).toLocaleString('id-ID'); }
+function fmtCompact(n){
+  if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace('.', ',') + ' rb';
+  return String(Math.round(n));
+}
+const animState = new Map(); // el -> { value, raf }
+function countUp(el, to, formatter){
+  const prev = animState.get(el) || { value: 0, raf: 0 };
+  if (prev.raf) cancelAnimationFrame(prev.raf);
+  const from = prev.value;
+  const start = performance.now(), dur = 650;
+  const st = { value: from, raf: 0 };
+  animState.set(el, st);
+  function step(t){
+    const p = Math.min(1, (t - start) / dur);
+    const eased = 1 - Math.pow(1 - p, 3);
+    st.value = from + (to - from) * eased;
+    el.textContent = formatter(st.value);
+    if (p < 1) st.raf = requestAnimationFrame(step);
+    else { st.value = to; st.raf = 0; }
+  }
+  st.raf = requestAnimationFrame(step);
+}
+
+/* ================================================================
+   CHART MANUAL (canvas) — line/area & bar, dengan tooltip hover
+   ================================================================ */
+function setupCanvas(canvas){
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = Math.max(1, Math.round(w * dpr));
+  canvas.height = Math.max(1, Math.round(h * dpr));
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w, h };
+}
+const chartStore = {}; // id -> {points, labels, values, suffix}
+
+function drawLineChart(canvas, tooltip, labels, values, opts){
+  opts = opts || {};
+  const color = opts.color || '#7AB8FF';
+  const { ctx, w, h } = setupCanvas(canvas);
+  const padL = 52, padR = 14, padT = 14, padB = 28;
+  const iw = w - padL - padR, ih = h - padT - padB;
+  const max = Math.max.apply(null, values) * 1.15 || 1;
+  const min = 0;
+  ctx.clearRect(0, 0, w, h);
+
+  // grid + label sumbu Y
+  ctx.font = '11px "Space Mono", monospace';
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let g = 0; g <= 4; g++){
+    const y = padT + ih - (ih * g / 4);
+    ctx.strokeStyle = 'rgba(143,161,194,0.13)';
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + iw, y); ctx.stroke();
+    ctx.fillStyle = '#8FA1C2';
+    ctx.fillText(fmtCompact(min + (max - min) * g / 4), padL - 9, y);
+  }
+  const pts = values.map((v, i) => ({
+    x: padL + (values.length === 1 ? iw / 2 : iw * i / (values.length - 1)),
+    y: padT + ih - ih * (v - min) / (max - min)
+  }));
+  // label sumbu X (maks ~6)
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  const step = Math.max(1, Math.ceil(labels.length / 6));
+  labels.forEach((lb, i) => {
+    if (i % step === 0 || i === labels.length - 1)
+      ctx.fillText(lb, pts[i].x, padT + ih + 9);
+  });
+  // area
+  const grad = ctx.createLinearGradient(0, padT, 0, padT + ih);
+  grad.addColorStop(0, color + '55'); grad.addColorStop(1, color + '00');
+  ctx.beginPath();
+  pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  ctx.lineTo(pts[pts.length - 1].x, padT + ih);
+  ctx.lineTo(pts[0].x, padT + ih);
+  ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+  // garis
+  ctx.beginPath();
+  pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  ctx.strokeStyle = color; ctx.lineWidth = 2.2; ctx.lineJoin = 'round'; ctx.stroke();
+  // titik ujung
+  const last = pts[pts.length - 1];
+  ctx.beginPath(); ctx.arc(last.x, last.y, 4, 0, Math.PI * 2);
+  ctx.fillStyle = color; ctx.fill();
+  ctx.beginPath(); ctx.arc(last.x, last.y, 7.5, 0, Math.PI * 2);
+  ctx.strokeStyle = color + '66'; ctx.lineWidth = 2; ctx.stroke();
+
+  chartStore[canvas.id] = { pts, labels, values, padT, padB, ih,
+    labelPrefix: opts.labelPrefix || '', format: opts.format || fmtNum };
+  attachTooltip(canvas, tooltip);
+}
+
+function drawBarChart(canvas, tooltip, labels, values, opts){
+  opts = opts || {};
+  const { ctx, w, h } = setupCanvas(canvas);
+  const padL = 52, padR = 14, padT = 16, padB = 28;
+  const iw = w - padL - padR, ih = h - padT - padB;
+  const max = Math.max.apply(null, values) * 1.15 || 1;
+  ctx.clearRect(0, 0, w, h);
+  ctx.font = '11px "Space Mono", monospace';
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let g = 0; g <= 4; g++){
+    const y = padT + ih - (ih * g / 4);
+    ctx.strokeStyle = 'rgba(143,161,194,0.13)';
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + iw, y); ctx.stroke();
+    ctx.fillStyle = '#8FA1C2';
+    ctx.fillText(fmtCompact(max * g / 4), padL - 9, y);
+  }
+  const slot = iw / values.length;
+  const bw = Math.min(64, slot * 0.58);
+  const colors = ['#FFD23F', '#7AB8FF', '#4ADE80', '#FF90E8'];
+  const pts = [];
+  values.forEach((v, i) => {
+    const cx = padL + slot * i + slot / 2;
+    const bh = ih * v / max;
+    const x = cx - bw / 2, y = padT + ih - bh;
+    const grad = ctx.createLinearGradient(0, y, 0, padT + ih);
+    const c = colors[i % colors.length];
+    grad.addColorStop(0, c); grad.addColorStop(1, c + '55');
+    ctx.beginPath();
+    const r = Math.min(7, bw / 2);
+    ctx.moveTo(x, padT + ih);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.lineTo(x + bw - r, y); ctx.quadraticCurveTo(x + bw, y, x + bw, y + r);
+    ctx.lineTo(x + bw, padT + ih); ctx.closePath();
+    ctx.fillStyle = grad; ctx.fill();
+    // nilai di atas bar
+    ctx.fillStyle = '#E8EEF9'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.font = 'bold 11.5px "Space Mono", monospace';
+    ctx.fillText(fmtCompact(v), cx, y - 5);
+    // label
+    ctx.fillStyle = '#8FA1C2'; ctx.textBaseline = 'top';
+    ctx.font = '11px "Space Mono", monospace';
+    ctx.fillText(labels[i], cx, padT + ih + 9);
+    pts.push({ x: cx, y });
+  });
+  chartStore[canvas.id] = { pts, labels, values, padT, padB, ih,
+    labelPrefix: opts.labelPrefix || '', format: opts.format || fmtNum, bar: true };
+  attachTooltip(canvas, tooltip);
+}
+
+function attachTooltip(canvas, tooltip){
+  if (canvas.dataset.tipBound) return;
+  canvas.dataset.tipBound = '1';
+  canvas.addEventListener('mousemove', e => {
+    const data = chartStore[canvas.id];
+    if (!data) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    let best = 0, bd = Infinity;
+    data.pts.forEach((p, i) => { const d = Math.abs(p.x - mx); if (d < bd){ bd = d; best = i; } });
+    const p = data.pts[best];
+    const { ctx, w, h } = { ctx: canvas.getContext('2d'), w: canvas.clientWidth, h: canvas.clientHeight };
+    // gambar ulang dilakukan oleh render berikutnya; garis hover digambar di sini
+    // (kanvas digambar ulang penuh lewat redrawHover)
+    redrawWithHover(canvas, best);
+    tooltip.innerHTML = '<div class="t-date">' + (data.labelPrefix + data.labels[best]) + '</div>' +
+                        '<div class="t-val">' + data.format(data.values[best]) + '</div>';
+    tooltip.style.opacity = '1';
+    let tx = p.x + 14;
+    if (tx + 150 > w) tx = p.x - 150;
+    tooltip.style.left = tx + 'px';
+    tooltip.style.top = Math.max(4, p.y - 14) + 'px';
+  });
+  canvas.addEventListener('mouseleave', () => {
+    tooltip.style.opacity = '0';
+    redrawPlain(canvas);
+  });
+}
+/* simpan parameter gambar terakhir per canvas agar bisa digambar ulang + hover */
+const lastDraw = {};
+function redrawPlain(canvas){
+  const d = lastDraw[canvas.id];
+  if (!d) return;
+  if (d.type === 'line') drawLineChart(canvas, d.tooltip, d.labels, d.values, d.opts);
+  else drawBarChart(canvas, d.tooltip, d.labels, d.values, d.opts);
+}
+function redrawWithHover(canvas, idx){
+  redrawPlain(canvas);
+  const data = chartStore[canvas.id];
+  if (!data) return;
+  const dpr = window.devicePixelRatio || 1;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const p = data.pts[idx];
+  const h = canvas.clientHeight;
+  ctx.strokeStyle = 'rgba(232,238,249,0.35)';
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(p.x, data.padT); ctx.lineTo(p.x, h - data.padB); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#E8EEF9'; ctx.fill();
+  ctx.beginPath(); ctx.arc(p.x, p.y, 2.4, 0, Math.PI * 2);
+  ctx.fillStyle = '#0E1526'; ctx.fill();
+}
+function renderLine(canvas, tooltip, labels, values, opts){
+  lastDraw[canvas.id] = { type: 'line', tooltip, labels, values, opts };
+  drawLineChart(canvas, tooltip, labels, values, opts);
+}
+function renderBar(canvas, tooltip, labels, values, opts){
+  lastDraw[canvas.id] = { type: 'bar', tooltip, labels, values, opts };
+  drawBarChart(canvas, tooltip, labels, values, opts);
+}
+
+/* ================================================================
+   RENDER: RINGKASAN
+   ================================================================ */
+const $ = id => document.getElementById(id);
+
+function gameRowHTML(d, rangeVisits, rangeRobux, isSelected){
+  const ratingCls = d.game.rating >= 90 ? 'rating-pill' : 'rating-pill mid';
+  return '<tr class="clickable' + (isSelected ? ' selected' : '') + '" data-game="' + d.game.name + '">' +
+    '<td><div class="game-cell"><div class="game-ava" style="background:' +
+      AVA_COLORS[GAMES.indexOf(d.game)] + '">' + d.game.name.charAt(0) + '</div>' + d.game.name + '</div></td>' +
+    '<td class="num">' + fmtNum(rangeVisits) + '</td>' +
+    '<td><span class="' + ratingCls + '">' + d.game.rating + '% suka</span></td>' +
+    '<td class="num"><span class="ccu-live">' + fmtNum(currentCcu([d])) + '</span></td>' +
+    '<td class="num" style="color:var(--yellow);font-weight:700">R$ ' + fmtNum(rangeRobux) + '</td></tr>';
+}
+function sumRange(d, key){
+  let s = 0;
+  for (let i = TOTAL_DAYS - state.range; i < TOTAL_DAYS; i++) s += d.days[i][key];
+  return s;
+}
+
+function renderRingkasan(){
+  const s = rangeSeries();
+  const totalVisits = s.visits.reduce((a, b) => a + b, 0);
+  const totalRobux  = s.robux.reduce((a, b) => a + b, 0);
+  // rata-rata CCU selama rentang
+  let ccuSum = 0;
+  const sel = selectedData();
+  for (let i = TOTAL_DAYS - state.range; i < TOTAL_DAYS; i++) ccuSum += avgCcuFor(sel, i);
+  const avgCcu = ccuSum / state.range;
+  const d1 = weightedRetention('d1');
+
+  countUp($('statVisits'), totalVisits, fmtNum);
+  countUp($('statCcu'), avgCcu, fmtNum);
+  countUp($('statRobux'), totalRobux, v => 'R$ ' + fmtNum(v));
+  countUp($('statRetention'), d1, v => (Math.round(v * 10) / 10).toString().replace('.', ',') + '%');
+
+  const prev = prevRangeVisits();
+  const deltaPct = prev > 0 ? ((totalVisits - prev) / prev * 100) : 0;
+  const arrow = deltaPct >= 0
+    ? '<span class="up">▲ ' + Math.abs(deltaPct).toFixed(1).replace('.', ',') + '%</span>'
+    : '<span class="down">▼ ' + Math.abs(deltaPct).toFixed(1).replace('.', ',') + '%</span>';
+  $('deltaVisits').innerHTML = arrow + ' vs periode sebelumnya';
+  $('deltaCcu').innerHTML = 'puncak hari ini <b style="color:var(--text)">' + fmtNum(currentCcu(sel)) + '</b> pemain bersamaan';
+  $('deltaRobux').innerHTML = 'rata-rata <b style="color:var(--text)">R$ ' + fmtNum(totalRobux / state.range) + '</b> per hari';
+  $('deltaRetention').innerHTML = 'pemain baru yang kembali di hari ke-2';
+
+  $('lineNote').textContent = (state.game === 'all' ? 'Semua game' : state.game) + ' · ' + state.range + ' hari terakhir';
+  renderLine($('lineChart'), $('lineTooltip'), s.labels, s.visits, { color: '#7AB8FF', format: v => fmtNum(v) + ' visits' });
+
+  $('summaryTableBody').innerHTML = GAME_DATA.map(d =>
+    gameRowHTML(d, sumRange(d, 'visits'), sumRange(d, 'robux'), state.game === d.game.name)
+  ).join('');
+  bindTableRows($('summaryTableBody'));
+}
+
+/* ================================================================
+   RENDER: GAME SAYA
+   ================================================================ */
+function renderGame(){
+  $('gameTableNote').textContent = '4 game · rentang ' + state.range + ' hari';
+  $('fullTableBody').innerHTML = GAME_DATA.map(d => {
+    const ratingCls = d.game.rating >= 90 ? 'rating-pill' : 'rating-pill mid';
+    const isSel = state.game === d.game.name;
+    return '<tr class="clickable' + (isSel ? ' selected' : '') + '" data-game="' + d.game.name + '">' +
+      '<td><div class="game-cell"><div class="game-ava" style="background:' +
+        AVA_COLORS[GAMES.indexOf(d.game)] + '">' + d.game.name.charAt(0) + '</div>' + d.game.name + '</div></td>' +
+      '<td class="num">' + fmtNum(d.game.base) + '</td>' +
+      '<td class="num">' + fmtNum(sumRange(d, 'visits')) + '</td>' +
+      '<td><span class="' + ratingCls + '">' + d.game.rating + '% suka</span></td>' +
+      '<td class="num"><span class="ccu-live">' + fmtNum(currentCcu([d])) + '</span></td>' +
+      '<td class="num" style="color:var(--yellow);font-weight:700">R$ ' + fmtNum(sumRange(d, 'robux')) + '</td>' +
+      '<td class="num">' + d.retention.d1.toString().replace('.', ',') + '%</td></tr>';
+  }).join('');
+  bindTableRows($('fullTableBody'));
+}
+function bindTableRows(tbody){
+  tbody.querySelectorAll('tr[data-game]').forEach(tr => {
+    tr.addEventListener('click', () => {
+      state.game = tr.dataset.game;
+      $('gameSelect').value = state.game;
+      renderAll();
+    });
+  });
+}
+
+/* ================================================================
+   RENDER: PENDAPATAN
+   ================================================================ */
+function weeklyRobux(){
+  const s = rangeSeries();
+  const labels = [], values = [];
+  for (let i = 0; i < s.robux.length; i += 7){
+    const chunk = s.robux.slice(i, i + 7);
+    values.push(chunk.reduce((a, b) => a + b, 0));
+    labels.push('Mgg ' + (labels.length + 1));
+  }
+  return { labels, values };
+}
+function renderPendapatan(){
+  const s = rangeSeries();
+  const total = s.robux.reduce((a, b) => a + b, 0);
+  countUp($('revTotal'), total, v => 'R$ ' + fmtNum(v));
+  countUp($('revDaily'), total / state.range, v => 'R$ ' + fmtNum(v));
+  countUp($('revDevex'), total * 0.0038, v => 'US$' + fmtNum(v));
+
+  const wk = weeklyRobux();
+  $('barNote').textContent = (state.game === 'all' ? 'Semua game' : state.game) + ' · ' + wk.values.length + ' minggu';
+  renderBar($('barChart'), $('barTooltip'), wk.labels, wk.values, { format: v => 'R$ ' + fmtNum(v) });
+
+  const rows = GAME_DATA.map(d => ({ d, val: sumRange(d, 'robux') }))
+    .sort((a, b) => b.val - a.val);
+  const maxVal = rows.length ? rows[0].val : 1;
+  $('revList').innerHTML = rows.map((r, i) =>
+    '<div class="rev-row">' +
+      '<div class="r-name">' + r.d.game.name + '</div>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + Math.max(3, r.val / maxVal * 100) +
+        '%;background:' + AVA_COLORS[GAMES.indexOf(r.d.game)] + '"></div></div>' +
+      '<div class="r-val" style="color:var(--yellow)">R$ ' + fmtNum(r.val) + '</div>' +
+    '</div>'
+  ).join('');
+}
+
+/* ================================================================
+   RENDER: PEMAIN
+   ================================================================ */
+function renderPemain(){
+  const sel = selectedData();
+  // gabungkan pola jam semua game terpilih, diskala ke CCU absolut
+  const hourly = new Array(24).fill(0);
+  sel.forEach(d => {
+    const rng = mulberry32(hashCode(d.game.name) + 777);
+    const pat = hourlyPattern(d.peakHour, rng);
+    const lastVisits = d.days[TOTAL_DAYS - 1].visits;
+    for (let h = 0; h < 24; h++) hourly[h] += Math.round(lastVisits * d.ccuFactor * (0.35 + pat[h] * 1.9));
+  });
+  const labels = hourly.map((_, h) => String(h).padStart(2, '0') + '.00');
+  $('ccuNote').textContent = (state.game === 'all' ? 'Semua game' : state.game);
+  renderLine($('ccuChart'), $('ccuTooltip'), labels, hourly, {
+    color: '#4ADE80', labelPrefix: 'Pukul ', format: v => fmtNum(v) + ' pemain'
+  });
+
+  const peak = Math.max.apply(null, hourly);
+  const peakH = hourly.indexOf(peak);
+  const avg = hourly.reduce((a, b) => a + b, 0) / 24;
+  countUp($('ccuPeak'), peak, fmtNum);
+  $('ccuPeakTime').textContent = 'terjadi pukul ' + String(peakH).padStart(2, '0') + '.00 WIB';
+  countUp($('ccuAvgToday'), avg, fmtNum);
+
+  let sessNum = 0, sessDen = 0;
+  sel.forEach(d => { sessNum += d.sessionMin * d.game.base; sessDen += d.game.base; });
+  countUp($('sessionAvg'), sessNum / sessDen, v => (Math.round(v * 10) / 10).toString().replace('.', ',') + ' mnt');
+
+  const d1 = weightedRetention('d1'), d7 = weightedRetention('d7'), d30 = weightedRetention('d30');
+  $('retD1').textContent = d1.toString().replace('.', ',') + '%';
+  $('retD7').textContent = d7.toString().replace('.', ',') + '%';
+  $('retD30').textContent = d30.toString().replace('.', ',') + '%';
+  requestAnimationFrame(() => {
+    $('retD1Bar').style.width = d1 + '%';
+    $('retD7Bar').style.width = d7 + '%';
+    $('retD30Bar').style.width = d30 + '%';
+  });
+}
+
+/* ================================================================
+   NAVIGASI + KONTROL
+   ================================================================ */
+const VIEW_META = {
+  ringkasan:  { title: 'Ringkasan',  sub: 'Performa game dalam rentang terpilih.' },
+  game:       { title: 'Game Saya',  sub: 'Daftar lengkap semua game dan statistiknya.' },
+  pendapatan: { title: 'Pendapatan', sub: 'Robux yang dihasilkan dari gamepass & dev product.' },
+  pemain:     { title: 'Pemain',     sub: 'Pola pemain bersamaan dan retensi pemain baru.' }
+};
+function renderView(){
+  document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+  $('view-' + state.view).classList.remove('hidden');
+  document.querySelectorAll('.nav-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.view === state.view));
+  $('pageTitle').textContent = VIEW_META[state.view].title;
+  $('pageSub').textContent = VIEW_META[state.view].sub;
+  // gambar chart SETELAH view terlihat agar ukuran canvas valid
+  requestAnimationFrame(() => {
+    if (state.view === 'ringkasan') renderRingkasan();
+    else if (state.view === 'game') renderGame();
+    else if (state.view === 'pendapatan') renderPendapatan();
+    else if (state.view === 'pemain') renderPemain();
+  });
+}
+function renderAll(){ renderView(); }
+
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => { state.view = btn.dataset.view; renderView(); });
+});
+document.querySelectorAll('.range-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.range = parseInt(btn.dataset.range, 10);
+    document.querySelectorAll('.range-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderAll();
+  });
+});
+
+/* dropdown game */
+(function initSelect(){
+  const sel = $('gameSelect');
+  const all = document.createElement('option');
+  all.value = 'all'; all.textContent = 'Semua Game';
+  sel.appendChild(all);
+  GAMES.forEach(g => {
+    const o = document.createElement('option');
+    o.value = g.name; o.textContent = g.name;
+    sel.appendChild(o);
+  });
+  sel.value = 'all';
+  sel.addEventListener('change', () => { state.game = sel.value; renderAll(); });
+})();
+
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(renderView, 160);
+});
+
+/* render awal */
+renderView();
+</script>
+</body>
+</html>
