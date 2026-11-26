@@ -1,5 +1,7 @@
 # Remike Analytics — Dashboard Game Roblox
 
+**Demo live:** https://kirax-12.github.io/roblox-analytics/
+
 Dashboard analytics game Roblox (front-end) dengan tema gelap profesional, dibangun sebagai
 satu file HTML mandiri. Semua data adalah **data contoh** yang digenerate secara deterministik
 di sisi klien — tidak ada backend dan tidak ada panggilan API.
